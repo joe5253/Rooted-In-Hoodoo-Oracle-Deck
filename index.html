@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a0a00">
+<title>Rooted In Hoodoo Folk Magic Oracle Deck</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  :root {
+    --brown-deep: #1a0a00;
+    --brown-dark: #2c1500;
+    --brown-mid: #3d1f00;
+    --brown-rich: #5a2d00;
+    --gold: #d4a017;
+    --gold-light: #f0c84a;
+    --gold-pale: #f5e0a0;
+    --cream: #f5e8c8;
+    --text-dim: #c4a46b;
+  }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: radial-gradient(ellipse at top, #2c1500 0%, #1a0800 40%, #0d0400 100%);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── LOCK SCREEN ── */
+  #lockScreen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: radial-gradient(ellipse at center, #2c1500 0%, #1a0a00 60%, #0d0500 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 28px; padding: 24px;
+  }
+  .lock-symbol {
+    width: 90px; height: 90px;
+  }
+  .lock-title {
+    font-size: 1.5rem; letter-spacing: 0.12em; color: var(--gold-light);
+    text-align: center; line-height: 1.4;
+  }
+  .lock-sub { font-size: 0.78rem; color: var(--text-dim); letter-spacing: 0.1em; text-align: center; }
+  .lock-input-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; max-width: 280px; }
+  #codeInput {
+    width: 100%; padding: 14px 18px; text-align: center;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(212,160,23,0.35);
+    border-radius: 10px; color: var(--cream); font-size: 1.1rem; letter-spacing: 0.2em;
+    outline: none; caret-color: var(--gold);
+  }
+  #codeInput:focus { border-color: var(--gold); background: rgba(255,255,255,0.09); }
+  #unlockBtn {
+    width: 100%; padding: 14px; border: none; border-radius: 10px; cursor: pointer;
+    background: linear-gradient(135deg, #7a4800, #d4a017, #7a4800);
+    color: var(--brown-deep); font-size: 0.95rem; font-weight: bold; letter-spacing: 0.12em;
+    transition: opacity 0.2s;
+  }
+  #unlockBtn:hover { opacity: 0.85; }
+  .lock-err { color: #e06060; font-size: 0.8rem; display: none; text-align: center; }
+
+  /* ── APP WRAPPER ── */
+  #app { display: none; min-height: 100vh; flex-direction: column; }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(180deg, #0d0500 0%, #2c1500 100%);
+    border-bottom: 1px solid rgba(212,160,23,0.25);
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-title {
+    font-size: 1.05rem; letter-spacing: 0.1em; color: var(--gold-light);
+    line-height: 1.3; text-align: center; flex: 1;
+  }
+  .header-sub { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.12em; display: block; }
+  .icon-btn {
+    background: none; border: none; cursor: pointer; padding: 6px;
+    color: var(--gold); font-size: 1.3rem; transition: opacity 0.2s;
+  }
+  .icon-btn:hover { opacity: 0.7; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex; background: var(--brown-dark);
+    border-bottom: 1px solid rgba(212,160,23,0.2);
+  }
+  .tab {
+    flex: 1; padding: 12px 6px; text-align: center; font-size: 0.72rem;
+    letter-spacing: 0.08em; color: var(--text-dim); cursor: pointer; border: none;
+    background: none; transition: all 0.2s; border-bottom: 2px solid transparent;
+  }
+  .tab.active { color: var(--gold-light); border-bottom-color: var(--gold); }
+
+  /* ── VIEWS ── */
+  .view { display: none; flex: 1; padding: 20px; }
+  .view.active { display: flex; flex-direction: column; }
+
+  /* ── SINGLE DRAW VIEW ── */
+  #drawView {
+    align-items: center; gap: 24px; padding-bottom: 40px;
+  }
+
+  .deck-prompt { text-align: center; color: var(--text-dim); font-size: 0.85rem; letter-spacing: 0.06em; }
+
+  /* ── CARD WRAP — ตรง reference pattern ── */
+  .card-slot {
+    width: min(300px, 86vw);
+    cursor: pointer;
+  }
+  .card-inner {
+    position: relative;
+    width: 100%;
+    padding-bottom: 178%;
+  }
+  .card-face {
+    position: absolute; inset: 0;
+    border-radius: 18px; overflow: hidden;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    border: 1.5px solid rgba(212,160,23,0.55);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 18px rgba(212,160,23,0.12), inset 0 1px 0 rgba(212,160,23,0.1);
+    transition: opacity 0.35s ease;
+  }
+  /* opacity-swap — class flipped อยู่บน .card-inner */
+  .card-back-face  { opacity: 1; z-index: 2; }
+  .card-front-face { opacity: 0; z-index: 1; }
+  .card-inner.flipped .card-back-face  { opacity: 0; z-index: 1; }
+  .card-inner.flipped .card-front-face { opacity: 1; z-index: 2; }
+
+  /* BACK — image fills, text overlaid */
+  .card-back-face {
+    background-image: url('https://joe5253.github.io/hoodoo-oracle/71.webp');
+    background-size: cover; background-position: center;
+  }
+  /* FRONT — ภาพเต็มใบ ไม่มี text band */
+  .card-front-face {
+    background: #0d0400;
+  }
+  .card-img-wrap {
+    position: absolute; inset: 0;
+  }
+  .card-img-wrap img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .card-text-band { display: none; }
+  .card-num, .card-name, .card-msg { display: none; }
+
+  /* ── DRAW CONTROLS ── */
+  .draw-controls {
+    width: 100%; max-width: 320px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 10px; padding-bottom: 8px;
+  }
+  .draw-controls-row {
+    display: flex; gap: 12px; width: 100%;
+  }
+  .btn-draw {
+    flex: 1;
+    background: linear-gradient(135deg, #7a4800 0%, #d4a017 50%, #7a4800 100%);
+    border: none; border-radius: 40px; cursor: pointer;
+    color: var(--brown-deep);
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 15px 10px;
+    box-shadow: 0 4px 18px rgba(212,160,23,0.28);
+    transition: opacity 0.22s, transform 0.18s;
+  }
+  .btn-draw:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-draw:active { transform: translateY(0); }
+
+  .btn-shuffle {
+    background: linear-gradient(135deg, #1a0a00 0%, #2c1500 100%);
+    border: 1px solid rgba(212,160,23,0.32);
+    color: var(--gold-light);
+    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 15px 20px; border-radius: 40px; cursor: pointer; white-space: nowrap;
+    transition: border-color 0.22s, box-shadow 0.22s;
+  }
+  .btn-shuffle:hover {
+    border-color: var(--gold);
+    box-shadow: 0 0 14px rgba(212,160,23,0.3);
+  }
+
+  .draw-hint {
+    font-size: 0.65rem; color: var(--text-dim);
+    letter-spacing: 0.14em; text-transform: uppercase; min-height: 12px;
+  }
+
+  /* ── SHAKE ── */
+  @keyframes cardShake {
+    0%,100%{ transform: translateX(0) rotate(0deg); }
+    15%{ transform: translateX(-8px) rotate(-2deg); }
+    30%{ transform: translateX(8px) rotate(2deg); }
+    45%{ transform: translateX(-6px) rotate(-1.5deg); }
+    60%{ transform: translateX(6px) rotate(1.5deg); }
+    75%{ transform: translateX(-3px) rotate(-0.8deg); }
+    90%{ transform: translateX(3px) rotate(0.5deg); }
+  }
+  .card-inner.shaking { animation: cardShake 0.55s ease-in-out; }
+
+  /* fav button */
+  .fav-wrap { width: 100%; max-width: 320px; display: flex; justify-content: flex-end; }
+  .fav-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 1.4rem; color: var(--text-dim); transition: color 0.2s;
+  }
+  .fav-btn.active { color: #e06030; }
+
+  /* ── BROWSE VIEW ── */
+  #browseView { gap: 16px; }
+  .search-bar {
+    width: 100%; padding: 12px 16px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(212,160,23,0.25);
+    border-radius: 10px; color: var(--cream); font-size: 0.9rem; outline: none;
+    caret-color: var(--gold);
+  }
+  .search-bar:focus { border-color: var(--gold); }
+  .card-grid {
+    display: grid; grid-template-columns: repeat(2,1fr); gap: 14px;
+  }
+  .grid-card {
+    border-radius: 12px; overflow: hidden; cursor: pointer;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.6);
+    border: 1px solid rgba(212,160,23,0.2); transition: transform 0.2s, border-color 0.2s;
+    aspect-ratio: 9/16; position: relative;
+  }
+  .grid-card:hover { transform: translateY(-3px); border-color: rgba(212,160,23,0.5); }
+  .grid-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+
+  /* ── FAVORITES VIEW ── */
+  #favsView { gap: 16px; }
+  .favs-empty { text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-top: 40px; line-height: 1.7; }
+
+  /* ── MODAL (browse → full card) ── */
+  #cardModal {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(5,2,0,0.9);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  #cardModal.open { display: flex; }
+  .modal-card {
+    width: 100%; max-width: 340px; aspect-ratio: 9/16;
+    border-radius: 18px; overflow: hidden;
+    box-shadow: 0 12px 60px rgba(0,0,0,0.9);
+    display: flex; flex-direction: column;
+    border: 1px solid rgba(212,160,23,0.3);
+    position: relative;
+  }
+  .modal-img { width: 100%; flex: 1; object-fit: cover; display: block; min-height: 0; }
+  .modal-text {
+    background: linear-gradient(180deg, rgba(28,12,0,0.95), rgba(15,6,0,0.99));
+    padding: 14px 16px 18px;
+    border-top: 1px solid rgba(212,160,23,0.3);
+  }
+  .modal-close {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(0,0,0,0.6); border: none; border-radius: 50%;
+    width: 34px; height: 34px; color: var(--cream); font-size: 1.1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .modal-fav {
+    position: absolute; top: 10px; left: 10px;
+    background: rgba(0,0,0,0.6); border: none; border-radius: 50%;
+    width: 34px; height: 34px; font-size: 1.1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim);
+  }
+  .modal-fav.active { color: #e06030; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ LOCK SCREEN ════════════════════ -->
+<div id="lockScreen">
+  <svg class="lock-symbol" viewBox="0 0 100 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- tree trunk & roots -->
+    <line x1="50" y1="85" x2="50" y2="110" stroke="#d4a017" stroke-width="3"/>
+    <!-- roots -->
+    <path d="M50 110 Q35 120 22 130" stroke="#d4a017" stroke-width="2" fill="none"/>
+    <path d="M50 110 Q65 120 78 130" stroke="#d4a017" stroke-width="2" fill="none"/>
+    <path d="M50 115 Q40 125 30 138" stroke="#d4a017" stroke-width="1.5" fill="none" opacity="0.6"/>
+    <path d="M50 115 Q60 125 70 138" stroke="#d4a017" stroke-width="1.5" fill="none" opacity="0.6"/>
+    <!-- branches -->
+    <path d="M50 85 Q38 68 28 52" stroke="#d4a017" stroke-width="2" fill="none"/>
+    <path d="M50 85 Q62 68 72 52" stroke="#d4a017" stroke-width="2" fill="none"/>
+    <path d="M50 85 Q45 65 40 45" stroke="#d4a017" stroke-width="1.5" fill="none" opacity="0.8"/>
+    <path d="M50 85 Q55 65 60 45" stroke="#d4a017" stroke-width="1.5" fill="none" opacity="0.8"/>
+    <path d="M50 85 Q50 70 50 55" stroke="#d4a017" stroke-width="1.5" fill="none"/>
+    <!-- radiant lines -->
+    <circle cx="50" cy="85" r="28" stroke="#d4a017" stroke-width="0.8" stroke-dasharray="3 5" opacity="0.5"/>
+    <!-- sparkles -->
+    <text x="15" y="22" fill="#f0c84a" font-size="10" opacity="0.9">✦</text>
+    <text x="74" y="148" fill="#f0c84a" font-size="10" opacity="0.9">✦</text>
+  </svg>
+  <div class="lock-title">ROOTED IN HOODOO<br>FOLK MAGIC ORACLE DECK<span class="lock-sub" style="margin-top:6px;display:block">✦ PsychicSoulStar ✦</span></div>
+  <div class="lock-input-wrap">
+    <input id="codeInput" type="text" placeholder="Enter Access Code" autocomplete="off" maxlength="20" style="text-transform:uppercase">
+    <button id="unlockBtn">ENTER THE ROOTS ✦</button>
+    <div class="lock-err" id="lockErr">Incorrect code. Try again.</div>
+  </div>
+</div>
+
+<!-- ════════════════════ MAIN APP ════════════════════ -->
+<div id="app">
+  <!-- Header -->
+  <header>
+    <div style="width:32px"></div>
+    <div class="header-title">
+      ROOTED IN HOODOO<br>FOLK MAGIC ORACLE DECK
+      <span class="header-sub">✦ PsychicSoulStar ✦ · 70 Cards</span>
+    </div>
+    <div style="width:32px"></div>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-view="drawView">✦ Draw</button>
+    <button class="tab" data-view="browseView">☰ Browse</button>
+    <button class="tab" data-view="favsView">♥ Saved</button>
+  </div>
+
+  <!-- ── DRAW VIEW ── -->
+  <div class="view active" id="drawView">
+    <p class="deck-prompt">Shuffle the deck and draw your message</p>
+
+    <div class="card-slot" id="cardSlot">
+      <div class="card-inner" id="cardInner">
+        <!-- BACK (bg-image via CSS, text on top) -->
+        <div class="card-face card-back-face"></div>
+        <!-- FRONT (populated by JS) -->
+        <div class="card-face card-front-face" id="cardFront">
+          <div class="card-img-wrap"><img id="drawnImg" src="" alt=""></div>
+          <div class="card-text-band">
+            <div class="card-num" id="drawnNum"></div>
+            <div class="card-name" id="drawnName"></div>
+            <div class="card-msg" id="drawnMsg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fav-wrap">
+      <button class="fav-btn" id="drawFavBtn" title="Save to favorites">♥</button>
+    </div>
+
+    <div class="draw-controls">
+      <span class="draw-hint" id="drawHint">Draw a card to begin</span>
+      <div class="draw-controls-row">
+        <button class="btn-draw" id="drawBtn">✦ DRAW A CARD</button>
+        <button class="btn-shuffle" id="shuffleBtn">⟳ SHUFFLE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BROWSE VIEW ── -->
+  <div class="view" id="browseView">
+    <input class="search-bar" id="searchInput" type="search" placeholder="Search cards…">
+    <div class="card-grid" id="cardGrid"></div>
+  </div>
+
+  <!-- ── FAVS VIEW ── -->
+  <div class="view" id="favsView">
+    <div class="card-grid" id="favsGrid"></div>
+    <p class="favs-empty" id="favsEmpty" style="display:none">
+      No saved cards yet.<br>Tap ♥ on any card to save it here.
+    </p>
+  </div>
+</div>
+
+<!-- ── CARD MODAL ── -->
+<div id="cardModal">
+  <div class="modal-card">
+    <img class="modal-img" id="modalImg" src="" alt="">
+    <button class="modal-fav" id="modalFavBtn">♥</button>
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-text">
+      <div class="card-num" id="modalNum"></div>
+      <div class="card-name" id="modalName"></div>
+      <div class="card-msg" id="modalMsg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CARDS DATA
+// ═══════════════════════════════════════════
+const CARDS = [
+  {n:1,t:'The Tripwire Root',m:'Ward off unseen malice and intruders. This sacred root creates a spiritual snare, tripping up enemies before they reach you.',img:'https://joe5253.github.io/hoodoo-oracle/1.webp'},
+  {n:2,t:'Queen Bee Root',m:'Step into your ultimate authority and magnetic allure. Command respect, dominate your field, and attract unconditional devotion.',img:'https://joe5253.github.io/hoodoo-oracle/2.webp'},
+  {n:3,t:'High Conqueror',m:'Claim absolute victory, mastery, and good fortune. No obstacle, legal battle, or hex can stand against the dominant force of your will.',img:'https://joe5253.github.io/hoodoo-oracle/3.webp'},
+  {n:4,t:'Lucky Clover',m:'Good fortune and sudden windfalls are heading your way. Trust your luck in games of chance and unexpected financial gains.',img:'https://joe5253.github.io/hoodoo-oracle/4.webp'},
+  {n:5,t:'Crown of Thorns',m:'Erect an impenetrable shield of protection. Neutralize malicious intent and reverse any negative speech directed at you.',img:'https://joe5253.github.io/hoodoo-oracle/5.webp'},
+  {n:6,t:'Soul Cleanser',m:'Wash away the heavy weight of guilt, sorrow, and spiritual pollution. Your spirit is now clean, light, and fully restored.',img:'https://joe5253.github.io/hoodoo-oracle/6.webp'},
+  {n:7,t:'Bitter Truth',m:'Sever unhealthy attachments and break toxic ties. Accept the bitter truth so that your spirit may finally walk free.',img:'https://joe5253.github.io/hoodoo-oracle/7.webp'},
+  {n:8,t:'Fiery Passion',m:'Ignite the flames of lust, passion, and intense desire. Awaken a fierce, unquenchable attraction in the heart of another.',img:'https://joe5253.github.io/hoodoo-oracle/8.webp'},
+  {n:9,t:'Money Magnet',m:'Open the floodgates for a steady cash flow and business growth. Prosperity easily flows toward your focused energy.',img:'https://joe5253.github.io/hoodoo-oracle/9.webp'},
+  {n:10,t:'Courtroom Victory',m:'Command favor, justice, and influence in legal matters. The scales of truth tip heavily and unshakeably in your favor.',img:'https://joe5253.github.io/hoodoo-oracle/10.webp'},
+  {n:11,t:'Peaceful Home',m:'Calm all domestic anxiety, arguments, and chaotic energy. Bring absolute tranquility and harmony under your roof.',img:'https://joe5253.github.io/hoodoo-oracle/11.webp'},
+  {n:12,t:'Sacred Blossoms',m:'Flowers are magical, reminding us of the cycles of life as they grow, blossom, and wither. Embrace your season of blooming.',img:'https://joe5253.github.io/hoodoo-oracle/12.webp'},
+  {n:13,t:'Psychic Eye',m:'Enhance your prophetic dreams and sharpen your intuition. The veil is thin, and the spirit world is ready to speak clearly.',img:'https://joe5253.github.io/hoodoo-oracle/13.webp'},
+  {n:14,t:"Healer's Touch",m:'Restore your physical, emotional, and spiritual vitality. The deep wounds of the past are now closing and mending beautifully.',img:'https://joe5253.github.io/hoodoo-oracle/14.webp'},
+  {n:15,t:'Stay Home',m:'Keep your partner faithful, dedicated, and tethered to your side. No wandering eye can break the bond of your love.',img:'https://joe5253.github.io/hoodoo-oracle/15.webp'},
+  {n:16,t:'Wall Breaker',m:'Shatter the barriers holding you back. No obstacle is too dense for your power to demolish and clear the path ahead.',img:'https://joe5253.github.io/hoodoo-oracle/16.webp'},
+  {n:17,t:'Path Blazer',m:'Unlock the closed gates and clear the brush. The universe is paving a golden highway for your success and favor.',img:'https://joe5253.github.io/hoodoo-oracle/17.webp'},
+  {n:18,t:'The Ice Bind',m:'Silence malicious tongues and freeze hostile intents. Stop gossip, legal battles, and rivals cold in their tracks.',img:'https://joe5253.github.io/hoodoo-oracle/18.webp'},
+  {n:19,t:'Reversible Flame',m:'Return all curses, jealousy, and bad luck back to their source. Let the fire burn away the malice of your enemies.',img:'https://joe5253.github.io/hoodoo-oracle/19.webp'},
+  {n:20,t:'Threshold Wash',m:'Cleanse your floors to command your space. Wash away negative traces left by outsiders and lock in blessings at your doorstep.',img:'https://joe5253.github.io/hoodoo-oracle/20.webp'},
+  {n:21,t:'Crossroad Choice',m:'You stand at a pivotal turning point. Make your decision boldly; your destiny changes with the next step you take.',img:'https://joe5253.github.io/hoodoo-oracle/21.webp'},
+  {n:22,t:'Foot Tracking',m:'Influence the steps of those you desire or wish to banish. You hold the power to guide or sever their direction.',img:'https://joe5253.github.io/hoodoo-oracle/22.webp'},
+  {n:23,t:'Brick Dust Boundary',m:'Draw an absolute line of protection around your sanctuary. No negative spirit or ill-willed person may cross it.',img:'https://joe5253.github.io/hoodoo-oracle/23.webp'},
+  {n:24,t:'Knotted Prayer',m:'Bind your desires into physical reality or release old promises. Each knot holds an unyielding vow of fulfillment.',img:'https://joe5253.github.io/hoodoo-oracle/24.webp'},
+  {n:25,t:'Smoke Whisper',m:'Your prayers are rising directly to the divine realms. Trust that your petitions are being heard and acted upon.',img:'https://joe5253.github.io/hoodoo-oracle/25.webp'},
+  {n:26,t:'Head Washing',m:'Reclaim your mental clarity, peace, and spiritual sovereignty. Your thoughts are now clear and perfectly aligned.',img:'https://joe5253.github.io/hoodoo-oracle/26.webp'},
+  {n:27,t:'Mirror Retaliation',m:'Unmask the hidden deception and jealousy around you. Let the mirror reflect their true intentions right back to them.',img:'https://joe5253.github.io/hoodoo-oracle/27.webp'},
+  {n:28,t:'Candle Watch',m:'Keep the fire of your intention burning. Continuous focus and spiritual labor are bringing your desires to life.',img:'https://joe5253.github.io/hoodoo-oracle/28.webp'},
+  {n:29,t:'Fiery Petition',m:'Release your requests into the consuming fire. What is consumed in flame is rapidly birthed into physical manifestation.',img:'https://joe5253.github.io/hoodoo-oracle/29.webp'},
+  {n:30,t:'Earth Burial',m:'Ground your work and finalize the spell. Trust the earth to hold your secrets and mature your seeds of manifestation.',img:'https://joe5253.github.io/hoodoo-oracle/30.webp'},
+  {n:31,t:'The Honey Pot',m:'Draw sweetness, love, and financial favor into your life. Soften hardened hearts and make your reality taste of divine blessings.',img:'https://joe5253.github.io/hoodoo-oracle/31.webp'},
+  {n:32,t:'Sacred Salt',m:'Purify your spirit and draw an unbreakable boundary. Negative energy cannot cross the line of sacred salt.',img:'https://joe5253.github.io/hoodoo-oracle/32.webp'},
+  {n:33,t:'Lodestone Attractor',m:'You are becoming an irresistible magnet for prosperity and love. Pull your desires directly from the universe into your hands.',img:'https://joe5253.github.io/hoodoo-oracle/33.webp'},
+  {n:34,t:'Blue Bottle Shield',m:'Hang your protective shields upon the branches. Evil spirits are drawn into the sacred blue glass and trapped forever.',img:'https://joe5253.github.io/hoodoo-oracle/34.webp'},
+  {n:35,t:'Mercury Dime',m:'Carry the shield of ancient luck and protection against evil spirits. Walk with confidence, for you are safe from harm.',img:'https://joe5253.github.io/hoodoo-oracle/35.webp'},
+  {n:36,t:'Cologne Water',m:'Instantly cleanse stagnant energy from your environment. Refresh your space with clear blessings, joy, and spiritual clarity.',img:'https://joe5253.github.io/hoodoo-oracle/36.webp'},
+  {n:37,t:'The Sacred Text',m:'The transformative power of the sacred text offers solace and strength in times of need. Speak the words to conquer your foes.',img:'https://joe5253.github.io/hoodoo-oracle/37.webp'},
+  {n:38,t:'The Bone Oracle',m:'The bones have fallen, and the answers are clear. Listen closely to the raw, unvarnished truth the spirits are revealing.',img:'https://joe5253.github.io/hoodoo-oracle/38.webp'},
+  {n:39,t:'Anointing Oil',m:'Consecrate your space and magnify your intentions. A single drop seals your purpose with unstoppable spiritual authority.',img:'https://joe5253.github.io/hoodoo-oracle/39.webp'},
+  {n:40,t:'Black Cat Curio',m:'Break free from bad luck and walk unnoticed by those who wish you harm. The ultimate power of luck is now yours.',img:'https://joe5253.github.io/hoodoo-oracle/40.webp'},
+  {n:41,t:'Cowrie Whisper',m:'Tap into the vast flow of ancient abundance and ancestral speech. Luxury, wealth, and divine communication are yours.',img:'https://joe5253.github.io/hoodoo-oracle/41.webp'},
+  {n:42,t:'The Mojo Pouch',m:'Carry your magic wherever you go. This portable prayer bag keeps your luck high and your protection constant.',img:'https://joe5253.github.io/hoodoo-oracle/42.webp'},
+  {n:43,t:'Sharp Needles',m:'Pierce through the defenses of your obstacles and clip the wings of your enemies. Defend your peace with sharp precision.',img:'https://joe5253.github.io/hoodoo-oracle/43.webp'},
+  {n:44,t:'Sulfur Purge',m:'Drive away heavy hexes, jinxes, and demonic energies. Purge your life of any toxic, clinging entity once and for all.',img:'https://joe5253.github.io/hoodoo-oracle/44.webp'},
+  {n:45,t:'Camphor Crystal',m:'Clear the heavy air of spirits and stagnant vibes. Welcome fresh, high-vibrational energy into your mind and room.',img:'https://joe5253.github.io/hoodoo-oracle/45.webp'},
+  {n:46,t:'Skeleton Key',m:'Access the hidden rooms of knowledge and open tightly locked doors of opportunity. No gate can remain closed to you.',img:'https://joe5253.github.io/hoodoo-oracle/46.webp'},
+  {n:47,t:'Honoring the Lineage',m:'Ancestor veneration involves honoring your ancestors and seeking their guidance as they hold significant influence over the living.',img:'https://joe5253.github.io/hoodoo-oracle/47.webp'},
+  {n:48,t:'Ancestral Wealth',m:'This note is meant to be burnt and offered to your ancestors, who may benefit from it in the spirit world.',img:'https://joe5253.github.io/hoodoo-oracle/48.webp'},
+  {n:49,t:'Banish & Shield',m:'Use sacred rituals to cleanse and protect your space from negativity and evil spirits. Your boundary is absolute.',img:'https://joe5253.github.io/hoodoo-oracle/49.webp'},
+  {n:50,t:'Sacred Prayer',m:'Ancestral spirits hear my call, and guide me through overall. In your wisdom, light my way, protect and bless me daily.',img:'https://joe5253.github.io/hoodoo-oracle/50.webp'},
+  {n:51,t:'The Spirit Midwife',m:'A Spiritual Midwife guides others through their spiritual journey, much like a traditional midwife assists in the birthing process.',img:'https://joe5253.github.io/hoodoo-oracle/51.webp'},
+  {n:52,t:'The Libation Pour',m:'Offering a small amount of spirit as a sign of respect to deceased ancestors or supernatural entities.',img:'https://joe5253.github.io/hoodoo-oracle/52.webp'},
+  {n:53,t:'The Spirit Toll',m:'Coins left on graves serve as symbolic payment to the spirits, expressing gratitude for their assistance.',img:'https://joe5253.github.io/hoodoo-oracle/53.webp'},
+  {n:54,t:'Crossroad Spirit',m:'Pay your respects to the keeper of the gates. When he opens the door, no man, spirit, or force can shut it.',img:'https://joe5253.github.io/hoodoo-oracle/54.webp'},
+  {n:55,t:'The Conjurer',m:'Take active control of your destiny. Stop waiting for change and start shaping the elements to work in your favor.',img:'https://joe5253.github.io/hoodoo-oracle/55.webp'},
+  {n:56,t:'The Matriarch',m:'Listen to the fierce, protective wisdom of the women who came before you. You are backed by an army of matriarchs.',img:'https://joe5253.github.io/hoodoo-oracle/56.webp'},
+  {n:57,t:'The Rebel Maroon',m:'Break the heavy chains of mental and physical bondage. Reclaim your freedom, your wild spirit, and your sovereign power.',img:'https://joe5253.github.io/hoodoo-oracle/57.webp'},
+  {n:58,t:'Night Watchman',m:'Rest deeply and fearlessly. The spiritual guardian of your lineage is standing watch over your body and mind tonight.',img:'https://joe5253.github.io/hoodoo-oracle/58.webp'},
+  {n:59,t:'The Roots Healer',m:'Align yourself with the natural rhythms of life. True healing comes when you restore your connection to the earth.',img:'https://joe5253.github.io/hoodoo-oracle/59.webp'},
+  {n:60,t:'The Shadow Aspect',m:'The act of using supernatural powers or magic to cause harm is known as dark magic. Shield your soul from the shadows.',img:'https://joe5253.github.io/hoodoo-oracle/60.webp'},
+  {n:61,t:'Cosmic Alignment',m:'Astrology is a system of divination that uses the positions and movements of celestial bodies to gain insight into human affairs.',img:'https://joe5253.github.io/hoodoo-oracle/61.webp'},
+  {n:62,t:'The Blocked Cord',m:'Recognize the sudden blockages in your life. Heavy crossed conditions are present, and it is time to actively uncross them.',img:'https://joe5253.github.io/hoodoo-oracle/62.webp'},
+  {n:63,t:'The Uncrossing',m:'The heavy hex has been broken, and the curse is lifted. Breathe a sigh of relief as your good luck rushes back into your life.',img:'https://joe5253.github.io/hoodoo-oracle/63.webp'},
+  {n:64,t:'The Overflow',m:'Prepare for an overwhelming season of emotional fulfillment and financial abundance. Your cups are running over.',img:'https://joe5253.github.io/hoodoo-oracle/64.webp'},
+  {n:65,t:'Stagnant Waters',m:'A serious warning of stagnant or blocked energy. Break the repetitive routine before your spirit begins to wither.',img:'https://joe5253.github.io/hoodoo-oracle/65.webp'},
+  {n:66,t:'The Envious Eye',m:'Guard your current blessings from the silent envy of others. Not everyone smiling in your face is celebrating your success.',img:'https://joe5253.github.io/hoodoo-oracle/66.webp'},
+  {n:67,t:'Divine Justice',m:'The cosmic scales are balancing out. Karma is settling all outstanding debts, and you will finally receive the justice you deserve.',img:'https://joe5253.github.io/hoodoo-oracle/67.webp'},
+  {n:68,t:'Faith in the Dark',m:'Surrender your control and trust the unseen process. The spirits are working on your behalf behind closed doors.',img:'https://joe5253.github.io/hoodoo-oracle/68.webp'},
+  {n:69,t:'Energy Drain',m:'A sharp warning against psychic vampires and parasitic relationships. Protect your energy and cut off those who drain you.',img:'https://joe5253.github.io/hoodoo-oracle/69.webp'},
+  {n:70,t:'Triumphant Return',m:'The battle is won, and you have survived the fire. Return to your throne, wiser, stronger, and completely undefeated.',img:'https://joe5253.github.io/hoodoo-oracle/70.webp'}
+];
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+const ACCESS_CODE = 'HOODOO88';
+let deck = [...CARDS];
+let drawnCard = null;
+let isFlipped = false;
+let favs = JSON.parse(localStorage.getItem('hoodoo_favs') || '[]');
+let modalCard = null;
+
+// ═══════════════════════════════════════════
+//  LOCK
+// ═══════════════════════════════════════════
+document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
+document.getElementById('codeInput').addEventListener('keydown', e => { if(e.key==='Enter') tryUnlock(); });
+
+function tryUnlock(){
+  const val = document.getElementById('codeInput').value.trim().toUpperCase();
+  if(val === ACCESS_CODE){
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    buildBrowse(CARDS);
+    renderFavs();
+  } else {
+    document.getElementById('lockErr').style.display = 'block';
+    document.getElementById('codeInput').value = '';
+  }
+}
+
+// ═══════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.view).classList.add('active');
+    if(btn.dataset.view === 'favsView') renderFavs();
+  });
+});
+
+// ═══════════════════════════════════════════
+//  DRAW — pattern จาก calm-signal-cards reference
+// ═══════════════════════════════════════════
+const mainCard = document.getElementById('cardInner');
+
+function populateFront(card){
+  document.getElementById('drawnImg').src = card.img;
+}
+
+function setHint(txt){ document.getElementById('drawHint').textContent = txt; }
+
+function drawCard(){
+  // reset กลับหลังก่อนเสมอ
+  mainCard.classList.remove('flipped');
+  isFlipped = false;
+
+  // สุ่มไพ่ — ไม่ซ้ำใบเดิม
+  let idx;
+  do { idx = Math.floor(Math.random() * CARDS.length); }
+  while(CARDS[idx] === drawnCard && CARDS.length > 1);
+  drawnCard = CARDS[idx];
+
+  populateFront(drawnCard);
+  updateDrawFav();
+  setHint('Tap card to reveal ✦');
+}
+
+// กดที่ตัวไพ่ → toggle flip (เหมือน reference)
+mainCard.addEventListener('click', () => {
+  if(!drawnCard) return;
+  mainCard.classList.toggle('flipped');
+  isFlipped = !isFlipped;
+  setHint(isFlipped ? 'Tap card to flip back ✦' : 'Tap card to reveal ✦');
+});
+
+function shuffle(){
+  mainCard.classList.remove('shaking');
+  void mainCard.offsetWidth;
+  mainCard.classList.add('shaking');
+
+  let pool = drawnCard ? CARDS.filter(c => c.n !== drawnCard.n) : CARDS;
+  const next = pool[Math.floor(Math.random() * pool.length)];
+
+  setTimeout(() => {
+    mainCard.classList.remove('shaking');
+    mainCard.classList.remove('flipped');
+    isFlipped = false;
+    drawnCard = next;
+    populateFront(next);
+    updateDrawFav();
+    setHint('Tap card to reveal ✦');
+  }, 560);
+}
+
+document.getElementById('drawBtn').addEventListener('click', drawCard);
+document.getElementById('shuffleBtn').addEventListener('click', shuffle);
+// ═══════════════════════════════════════════
+//  FAVORITES
+// ═══════════════════════════════════════════
+function saveFavs(){ localStorage.setItem('hoodoo_favs', JSON.stringify(favs)); }
+
+function isFav(n){ return favs.includes(n); }
+function toggleFav(n){
+  if(isFav(n)) favs = favs.filter(x => x !== n);
+  else favs.push(n);
+  saveFavs();
+  updateDrawFav();
+  updateModalFav();
+}
+
+function updateDrawFav(){
+  const btn = document.getElementById('drawFavBtn');
+  if(!drawnCard){ btn.classList.remove('active'); return; }
+  btn.classList.toggle('active', isFav(drawnCard.n));
+}
+document.getElementById('drawFavBtn').addEventListener('click', () => {
+  if(!drawnCard) return;
+  toggleFav(drawnCard.n);
+});
+
+function renderFavs(){
+  const grid = document.getElementById('favsGrid');
+  const empty = document.getElementById('favsEmpty');
+  if(favs.length === 0){ grid.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  const cards = CARDS.filter(c => favs.includes(c.n));
+  grid.innerHTML = cards.map(c => gridCardHTML(c)).join('');
+  grid.querySelectorAll('.grid-card').forEach((el,i)=>{
+    el.addEventListener('click', () => openModal(cards[i]));
+  });
+}
+
+// ═══════════════════════════════════════════
+//  BROWSE
+// ═══════════════════════════════════════════
+function gridCardHTML(c){
+  return `<div class="grid-card">
+    <img src="${c.img}" alt="${c.t}" loading="lazy">
+  </div>`;
+}
+
+function buildBrowse(list){
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = list.map(c => gridCardHTML(c)).join('');
+  grid.querySelectorAll('.grid-card').forEach((el,i)=>{
+    el.addEventListener('click', () => openModal(list[i]));
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  const filtered = q ? CARDS.filter(c => c.t.toLowerCase().includes(q) || c.m.toLowerCase().includes(q)) : CARDS;
+  buildBrowse(filtered);
+});
+
+// ═══════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════
+function openModal(card){
+  modalCard = card;
+  document.getElementById('modalImg').src = card.img;
+  document.getElementById('modalNum').textContent = `Card ${card.n} of 70`;
+  document.getElementById('modalName').textContent = card.t;
+  document.getElementById('modalMsg').textContent = card.m;
+  updateModalFav();
+  document.getElementById('cardModal').classList.add('open');
+}
+
+function updateModalFav(){
+  const btn = document.getElementById('modalFavBtn');
+  if(!modalCard) return;
+  btn.classList.toggle('active', isFav(modalCard.n));
+}
+
+document.getElementById('modalClose').addEventListener('click', () => {
+  document.getElementById('cardModal').classList.remove('open');
+  modalCard = null;
+  if(document.getElementById('favsView').classList.contains('active')) renderFavs();
+});
+
+document.getElementById('cardModal').addEventListener('click', function(e){
+  if(e.target === this){ 
+    this.classList.remove('open');
+    modalCard = null;
+    if(document.getElementById('favsView').classList.contains('active')) renderFavs();
+  }
+});
+
+document.getElementById('modalFavBtn').addEventListener('click', () => {
+  if(!modalCard) return;
+  toggleFav(modalCard.n);
+  renderFavs();
+});
+</script>
+</body>
+</html>
