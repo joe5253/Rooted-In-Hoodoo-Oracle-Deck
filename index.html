@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a0a00">
-<title>Rooted In Hoodoo Folk Magic Oracle Deck</title>
+<title>Dust, Root & Conjure Oracle Deck</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
@@ -38,7 +38,7 @@
     gap: 28px; padding: 24px;
   }
   .lock-symbol {
-    width: 90px; height: 90px;
+    width: 110px; height: 110px;
   }
   .lock-title {
     font-size: 1.5rem; letter-spacing: 0.12em; color: var(--gold-light);
@@ -100,7 +100,7 @@
 
   /* ── SINGLE DRAW VIEW ── */
   #drawView {
-    align-items: center; gap: 24px; padding-bottom: 40px;
+    align-items: center; gap: 10px; padding-bottom: 24px;
   }
 
   .deck-prompt { text-align: center; color: var(--text-dim); font-size: 0.85rem; letter-spacing: 0.06em; }
@@ -109,6 +109,7 @@
   .card-slot {
     width: min(300px, 86vw);
     cursor: pointer;
+    position: relative;
   }
   .card-inner {
     position: relative;
@@ -152,7 +153,7 @@
   .draw-controls {
     width: 100%; max-width: 320px;
     display: flex; flex-direction: column;
-    align-items: center; gap: 10px; padding-bottom: 8px;
+    align-items: center; gap: 8px; padding-bottom: 4px;
   }
   .draw-controls-row {
     display: flex; gap: 12px; width: 100%;
@@ -201,11 +202,17 @@
   .card-inner.shaking { animation: cardShake 0.55s ease-in-out; }
 
   /* fav button */
-  .fav-wrap { width: 100%; max-width: 320px; display: flex; justify-content: flex-end; }
-  .fav-btn {
-    background: none; border: none; cursor: pointer;
-    font-size: 1.4rem; color: var(--text-dim); transition: color 0.2s;
+  .fav-wrap {
+    position: absolute; top: 10px; right: 10px; z-index: 5;
   }
+  .fav-btn {
+    background: rgba(10,4,0,0.55); border: 1px solid rgba(212,160,23,0.3);
+    border-radius: 50%; width: 40px; height: 40px;
+    cursor: pointer; font-size: 1.2rem; color: var(--text-dim);
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.2s, background 0.2s;
+  }
+  .fav-btn:hover { background: rgba(10,4,0,0.75); }
   .fav-btn.active { color: #e06030; }
 
   /* ── BROWSE VIEW ── */
@@ -275,27 +282,65 @@
 
 <!-- ════════════════════ LOCK SCREEN ════════════════════ -->
 <div id="lockScreen">
-  <svg class="lock-symbol" viewBox="0 0 100 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- tree trunk & roots -->
-    <line x1="50" y1="85" x2="50" y2="110" stroke="#d4a017" stroke-width="3"/>
-    <!-- roots -->
-    <path d="M50 110 Q35 120 22 130" stroke="#d4a017" stroke-width="2" fill="none"/>
-    <path d="M50 110 Q65 120 78 130" stroke="#d4a017" stroke-width="2" fill="none"/>
-    <path d="M50 115 Q40 125 30 138" stroke="#d4a017" stroke-width="1.5" fill="none" opacity="0.6"/>
-    <path d="M50 115 Q60 125 70 138" stroke="#d4a017" stroke-width="1.5" fill="none" opacity="0.6"/>
-    <!-- branches -->
-    <path d="M50 85 Q38 68 28 52" stroke="#d4a017" stroke-width="2" fill="none"/>
-    <path d="M50 85 Q62 68 72 52" stroke="#d4a017" stroke-width="2" fill="none"/>
-    <path d="M50 85 Q45 65 40 45" stroke="#d4a017" stroke-width="1.5" fill="none" opacity="0.8"/>
-    <path d="M50 85 Q55 65 60 45" stroke="#d4a017" stroke-width="1.5" fill="none" opacity="0.8"/>
-    <path d="M50 85 Q50 70 50 55" stroke="#d4a017" stroke-width="1.5" fill="none"/>
-    <!-- radiant lines -->
-    <circle cx="50" cy="85" r="28" stroke="#d4a017" stroke-width="0.8" stroke-dasharray="3 5" opacity="0.5"/>
-    <!-- sparkles -->
-    <text x="15" y="22" fill="#f0c84a" font-size="10" opacity="0.9">✦</text>
-    <text x="74" y="148" fill="#f0c84a" font-size="10" opacity="0.9">✦</text>
+  <svg class="lock-symbol" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="glowG" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f0c84a" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="#f0c84a" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="goldG" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#f0c84a"/>
+        <stop offset="50%" stop-color="#d4a017"/>
+        <stop offset="100%" stop-color="#a87b0e"/>
+      </linearGradient>
+    </defs>
+
+    <!-- soft glow -->
+    <circle cx="60" cy="60" r="56" fill="url(#glowG)"/>
+
+    <!-- outer ornate double ring -->
+    <circle cx="60" cy="60" r="52" stroke="url(#goldG)" stroke-width="1.6"/>
+    <circle cx="60" cy="60" r="47" stroke="#d4a017" stroke-width="0.7" opacity="0.65"/>
+
+    <!-- decorative dots on ring (crossroads points) -->
+    <circle cx="60" cy="8"  r="2.2" fill="#f0c84a"/>
+    <circle cx="60" cy="112" r="2.2" fill="#f0c84a"/>
+    <circle cx="8"  cy="60" r="2.2" fill="#f0c84a"/>
+    <circle cx="112" cy="60" r="2.2" fill="#f0c84a"/>
+
+    <!-- crescent moon arc top -->
+    <path d="M42 30 A24 24 0 0 1 78 30" stroke="#f0c84a" stroke-width="1.4" fill="none" opacity="0.85"/>
+
+    <!-- THE ROOT — bold trunk, clear taproot silhouette -->
+    <path d="M60 32 L60 66" stroke="url(#goldG)" stroke-width="4" stroke-linecap="round"/>
+    <!-- top branches (life) -->
+    <path d="M60 40 Q49 34 43 26" stroke="url(#goldG)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M60 40 Q71 34 77 26" stroke="url(#goldG)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M60 48 Q52 45 47 39" stroke="#d4a017" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.85"/>
+    <path d="M60 48 Q68 45 73 39" stroke="#d4a017" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.85"/>
+    <!-- roots (power below) — mirror, deeper & wider -->
+    <path d="M60 66 Q46 74 36 88" stroke="url(#goldG)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <path d="M60 66 Q74 74 84 88" stroke="url(#goldG)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <path d="M60 66 Q54 80 50 94" stroke="#d4a017" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.9"/>
+    <path d="M60 66 Q66 80 70 94" stroke="#d4a017" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.9"/>
+    <path d="M60 66 L60 98" stroke="#d4a017" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+    <!-- root tips: tiny forks -->
+    <path d="M36 88 L31 92 M36 88 L38 94" stroke="#a87b0e" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
+    <path d="M84 88 L89 92 M84 88 L82 94" stroke="#a87b0e" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
+
+    <!-- ground line where dust meets root -->
+    <path d="M40 66 L80 66" stroke="#f0c84a" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.6"/>
+
+    <!-- dust particles rising -->
+    <circle cx="34" cy="56" r="1.1" fill="#f0c84a" opacity="0.8"/>
+    <circle cx="87" cy="52" r="1.3" fill="#f0c84a" opacity="0.7"/>
+    <circle cx="30" cy="44" r="0.9" fill="#f0c84a" opacity="0.55"/>
+    <circle cx="90" cy="40" r="0.9" fill="#f0c84a" opacity="0.5"/>
+
+    <!-- four-point star at crown -->
+    <path d="M60 12 L61.8 18.2 L68 20 L61.8 21.8 L60 28 L58.2 21.8 L52 20 L58.2 18.2 Z" fill="#f0c84a"/>
   </svg>
-  <div class="lock-title">ROOTED IN HOODOO<br>FOLK MAGIC ORACLE DECK<span class="lock-sub" style="margin-top:6px;display:block">✦ PsychicSoulStar ✦</span></div>
+  <div class="lock-title">DUST, ROOT &amp; CONJURE<br>ORACLE DECK<span class="lock-sub" style="margin-top:6px;display:block">✦ PsychicSoulStar ✦</span></div>
   <div class="lock-input-wrap">
     <input id="codeInput" type="text" placeholder="Enter Access Code" autocomplete="off" maxlength="20" style="text-transform:uppercase">
     <button id="unlockBtn">ENTER THE ROOTS ✦</button>
@@ -309,7 +354,7 @@
   <header>
     <div style="width:32px"></div>
     <div class="header-title">
-      ROOTED IN HOODOO<br>FOLK MAGIC ORACLE DECK
+      DUST, ROOT &amp; CONJURE<br>ORACLE DECK
       <span class="header-sub">✦ PsychicSoulStar ✦ · 70 Cards</span>
     </div>
     <div style="width:32px"></div>
@@ -340,10 +385,9 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="fav-wrap">
-      <button class="fav-btn" id="drawFavBtn" title="Save to favorites">♥</button>
+      <div class="fav-wrap">
+        <button class="fav-btn" id="drawFavBtn" title="Save to favorites">♥</button>
+      </div>
     </div>
 
     <div class="draw-controls">
@@ -464,7 +508,7 @@ const CARDS = [
 // ═══════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════
-const ACCESS_CODE = 'HOODOO88';
+const ACCESS_CODE = 'ROOT70';
 let deck = [...CARDS];
 let drawnCard = null;
 let isFlipped = false;
@@ -514,11 +558,7 @@ function populateFront(card){
 
 function setHint(txt){ document.getElementById('drawHint').textContent = txt; }
 
-function drawCard(){
-  // reset กลับหลังก่อนเสมอ
-  mainCard.classList.remove('flipped');
-  isFlipped = false;
-
+function pickAndPopulate(){
   // สุ่มไพ่ — ไม่ซ้ำใบเดิม
   let idx;
   do { idx = Math.floor(Math.random() * CARDS.length); }
@@ -530,6 +570,17 @@ function drawCard(){
   setHint('Tap card to reveal ✦');
 }
 
+function drawCard(){
+  if(isFlipped){
+    // ไพ่เปิดหน้าอยู่ → fade กลับหลังก่อน รอ transition เสร็จ แล้วค่อยเปลี่ยนภาพ
+    mainCard.classList.remove('flipped');
+    isFlipped = false;
+    setTimeout(pickAndPopulate, 400); // รอ opacity 0.35s + buffer
+  } else {
+    pickAndPopulate();
+  }
+}
+
 // กดที่ตัวไพ่ → toggle flip (เหมือน reference)
 mainCard.addEventListener('click', () => {
   if(!drawnCard) return;
@@ -539,6 +590,10 @@ mainCard.addEventListener('click', () => {
 });
 
 function shuffle(){
+  // เริ่ม fade กลับหลังทันที (ถ้าเปิดอยู่) พร้อม shake
+  mainCard.classList.remove('flipped');
+  isFlipped = false;
+
   mainCard.classList.remove('shaking');
   void mainCard.offsetWidth;
   mainCard.classList.add('shaking');
@@ -546,10 +601,9 @@ function shuffle(){
   let pool = drawnCard ? CARDS.filter(c => c.n !== drawnCard.n) : CARDS;
   const next = pool[Math.floor(Math.random() * pool.length)];
 
+  // เปลี่ยนภาพหลัง shake + fade เสร็จ (0.56s > 0.35s fade)
   setTimeout(() => {
     mainCard.classList.remove('shaking');
-    mainCard.classList.remove('flipped');
-    isFlipped = false;
     drawnCard = next;
     populateFront(next);
     updateDrawFav();
@@ -578,7 +632,8 @@ function updateDrawFav(){
   if(!drawnCard){ btn.classList.remove('active'); return; }
   btn.classList.toggle('active', isFav(drawnCard.n));
 }
-document.getElementById('drawFavBtn').addEventListener('click', () => {
+document.getElementById('drawFavBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
   if(!drawnCard) return;
   toggleFav(drawnCard.n);
 });
